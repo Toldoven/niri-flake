@@ -208,15 +208,13 @@
               mv docs/wiki $doc/share/doc/niri/wiki
             '';
 
-          postFixup =
-            if replace-service-with-usr-bin then
-              ''
-                substituteInPlace $out/lib/systemd/user/niri.service --replace-fail /usr/bin $out/bin
-              ''
+          postFixup = ''
+            if grep -q /usr/bin $out/lib/systemd/user/niri.service; then
+              substituteInPlace $out/lib/systemd/user/niri.service --replace-fail /usr/bin $out/bin
             else
-              ''
-                substituteInPlace $out/lib/systemd/user/niri.service --replace-fail "ExecStart=niri" "ExecStart=$out/bin/niri"
-              '';
+              substituteInPlace $out/lib/systemd/user/niri.service --replace-fail "ExecStart=niri" "ExecStart=$out/bin/niri"
+            fi
+          '';
 
           meta = {
             description = "Scrollable-tiling Wayland compositor";
